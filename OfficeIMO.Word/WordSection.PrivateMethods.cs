@@ -26,7 +26,7 @@ namespace OfficeIMO.Word {
         internal static List<WordParagraph> ConvertParagraphsToWordParagraphs(WordDocument document, IEnumerable<Paragraph> paragraphs) {
             var list = new List<WordParagraph>();
             Dictionary<BookmarkStart, WordBookmark> bookmarks = new Dictionary<BookmarkStart, WordBookmark>();
-
+            var index = 1;
             foreach (Paragraph paragraph in paragraphs) {
                 var childElements = paragraph.ChildElements;
                 if (childElements.Count == 1 && childElements[0] is ParagraphProperties) {
@@ -36,7 +36,7 @@ namespace OfficeIMO.Word {
                     List<Run> runList = new List<Run>();
                     bool foundField = false;
                     foreach (var element in paragraph.ChildElements) {
-                        WordParagraph wordParagraph;
+                        WordParagraph wordParagraph = null;
                         if (element is Run) {
                             var run = (Run)element;
                             var fieldChar = run.ChildElements.OfType<FieldChar>().FirstOrDefault();
@@ -45,7 +45,7 @@ namespace OfficeIMO.Word {
                                     foundField = false;
                                     runList.Add(run);
                                     wordParagraph = new WordParagraph(document, paragraph, runList);
-                                    list.Add(wordParagraph);
+
                                 } else {
                                     runList.Add(run);
                                 }
@@ -57,28 +57,22 @@ namespace OfficeIMO.Word {
                                     }
                                 } else {
                                     wordParagraph = new WordParagraph(document, paragraph, run);
-                                    list.Add(wordParagraph);
                                 }
                             }
                         } else if (element is Hyperlink) {
                             wordParagraph = new WordParagraph(document, paragraph, (Hyperlink)element);
-                            list.Add(wordParagraph);
                         } else if (element is SimpleField) {
                             wordParagraph = new WordParagraph(document, paragraph, (SimpleField)element);
-                            list.Add(wordParagraph);
                         } else if (element is BookmarkStart) {
                             wordParagraph = new WordParagraph(document, paragraph, (BookmarkStart)element);
-                            list.Add(wordParagraph);
                         } else if (element is BookmarkEnd) {
                             // not needed, we will search for matching bookmark end in the bookmark (i guess)
                         } else if (element is DocumentFormat.OpenXml.Math.OfficeMath) {
                             wordParagraph = new WordParagraph(document, paragraph, (DocumentFormat.OpenXml.Math.OfficeMath)element);
-                            list.Add(wordParagraph);
                         } else if (element is DocumentFormat.OpenXml.Math.Paragraph) {
                             wordParagraph = new WordParagraph(document, paragraph, (DocumentFormat.OpenXml.Math.Paragraph)element);
-                            list.Add(wordParagraph);
                         } else if (element is SdtRun) {
-                            list.Add(new WordParagraph(document, paragraph, (SdtRun)element));
+                            wordParagraph = new WordParagraph(document, paragraph, (SdtRun)element);
                         } else if (element is ProofError) {
 
                         } else if (element is ParagraphProperties) {
@@ -86,7 +80,12 @@ namespace OfficeIMO.Word {
                         } else {
                             Debug.WriteLine("Please implement me! " + element.GetType().Name);
                         }
+                        if (wordParagraph != null) {
+                            wordParagraph.Index = index;
+                            list.Add(wordParagraph);
+                        }
                     }
+                    index++;
                 } else {
                     // add empty word paragraph
                     list.Add(new WordParagraph(document, paragraph));

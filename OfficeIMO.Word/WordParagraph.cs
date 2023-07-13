@@ -38,6 +38,10 @@ namespace OfficeIMO.Word {
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public int Index { get; set; }
         public bool IsLastRun {
             get {
                 var runs = _run.Parent.ChildElements.OfType<Run>();

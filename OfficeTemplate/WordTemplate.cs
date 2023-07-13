@@ -18,10 +18,18 @@ public  class WordTemplate : AbstractTemplate<WordTemplateDocument> {
     }
 
     public override async Task<WordTemplateDocument> RenderAsync(TemplateContext context) {
+
+        var comParas = TemplateDocument.GetCombineParas();
+        foreach (var par in comParas) {
+            if (!string.IsNullOrEmpty(par.Text)) {
+                Console.WriteLine($"Index:{par.Paragraphs.First().Index},Text:{par.Text}");
+            }
+        }
         var fluidContext = this.CreateFluidTemplateContext(TemplateDocument, context);
         var source = "Hello {{ Firstname }} {{ Lastname }} {{ Pic|Image}}";
-
+        //source = "ABCD";
         if (parser.TryParse(source, out var template, out var error)) {
+            
             Console.WriteLine(template.Render(fluidContext));
         }
         return this.TemplateDocument;
