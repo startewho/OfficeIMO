@@ -9,6 +9,8 @@ using OfficeTemplate;
 using OfficeTemplate.Filter;
 using System.Xml;
 using System.Xml.Linq;
+using DocumentFormat.OpenXml.Wordprocessing;
+
 namespace OfficeIMO;
 public  class WordTemplate : AbstractTemplate<WordTemplateDocument> {
     private static readonly FluidParser parser = new FluidParser();
@@ -25,6 +27,34 @@ public  class WordTemplate : AbstractTemplate<WordTemplateDocument> {
                 Console.WriteLine($"Index:{par.Paragraphs.First().Index},Text:{par.Text}");
             }
         }
+
+        var p= comParas.FirstOrDefault(p => p.Text == "网格划分参数");
+        if (p!=null) {
+            var table= p.Paragraphs.Last().AddTableBefore(5, 2);
+            table.Alignment = TableRowAlignmentValues.Center;
+            table.Width = 3000;
+            table.WidthType = TableWidthUnitValues.Pct;
+            table.Alignment = TableRowAlignmentValues.Center;
+            table.ColumnWidth = new List<int>() { 1500, 3500 };
+
+            for (int i = 0; i < 5; i++) {
+
+               
+                var cell = table.Rows[i].FirstCell.Paragraphs[0];
+                cell.Text = $"项目名称{i + 1}";
+                cell.FontSize = 15;
+                cell.FontFamily = "SimSun";
+                cell.ParagraphAlignment = JustificationValues.Center;
+                cell = table.Rows[i].Cells[1].Paragraphs[0];
+                cell.SetFontFamily("SimSun");
+                cell.SetFontSize(15);
+                cell.ParagraphAlignment = JustificationValues.Center;
+                cell.Text = $"值{i + 1}";
+             
+            }
+        }
+        
+
         var fluidContext = this.CreateFluidTemplateContext(TemplateDocument, context);
         var source = "Hello {{ Firstname }} {{ Lastname }} {{ Pic|Image}}";
         //source = "ABCD";

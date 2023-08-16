@@ -118,9 +118,10 @@ internal static partial class AdvancedDocument {
 
         }
 
-
+        
 
     }
+
 
     private static void AddImage(WordDocument document) {
         var p = document.AddParagraph().SetStyleId("1").SetText("添加图片");
